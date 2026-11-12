@@ -1,4 +1,4 @@
-importScripts("settings.js");
+importScripts("i18n.js", "settings.js");
 
 let menuTask = Promise.resolve();
 
@@ -7,9 +7,10 @@ function setupMenus() {
     const settings = await PicoSettings.load();
     await chrome.contextMenus.removeAll();
     if (!settings.openInCurrentTab) return;
+    const title = PicoI18n.t("contextMenuOpenImage", null, settings.language);
     await chrome.contextMenus.create({
       id: "open-image",
-      title: "在当前标签页打开图片",
+      title,
       contexts: ["image"]
     });
   }).catch((error) => {

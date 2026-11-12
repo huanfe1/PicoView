@@ -1,5 +1,6 @@
 globalThis.PicoSettings = (() => {
   const DEFAULTS = {
+    language: "auto",
     backgroundMode: "solid",
     backgroundColor: "#0e0e0e",
     backgroundColorSvg: "#ffffff",
@@ -29,54 +30,75 @@ globalThis.PicoSettings = (() => {
     }
   };
 
-  const CHOICES = {
+  const CHOICE_DEFS = {
+    language: [
+      ["auto", "langAuto"],
+      ["en", "langEn"],
+      ["zh-CN", "langZhCN"]
+    ],
     backgroundMode: [
-      ["solid", "纯色背景"],
-      ["blur", "当前图片模糊虚化"]
+      ["solid", "bgSolid"],
+      ["blur", "bgBlur"]
     ],
     startZoom: [
-      ["fit-if-larger", "超出窗口时自适应（推荐）"],
-      ["fit", "始终自适应窗口"],
-      ["actual", "原始尺寸 (100%)"]
+      ["fit-if-larger", "zoomFitIfLarger"],
+      ["fit", "zoomFit"],
+      ["actual", "zoomActual"]
     ],
     position: [
-      ["top-left", "左上角"],
-      ["top-center", "顶部居中"],
-      ["top-right", "右上角"],
-      ["center-left", "左侧居中"],
-      ["center", "居中对齐"],
-      ["center-right", "右侧居中"],
-      ["bottom-left", "左下角"],
-      ["bottom-center", "底部居中"],
-      ["bottom-right", "右下角"]
+      ["top-left", "posTopLeft"],
+      ["top-center", "posTopCenter"],
+      ["top-right", "posTopRight"],
+      ["center-left", "posCenterLeft"],
+      ["center", "posCenter"],
+      ["center-right", "posCenterRight"],
+      ["bottom-left", "posBottomLeft"],
+      ["bottom-center", "posBottomCenter"],
+      ["bottom-right", "posBottomRight"]
     ],
     controls: [
-      ["picoview", "缩放图片（推荐，Ctrl 切换为滚动）"],
-      ["chrome", "页面滚动（原生，Ctrl 切换为缩放）"]
+      ["picoview", "ctrlPicoview"],
+      ["chrome", "ctrlChrome"]
     ]
   };
 
-  const KEY_FIELDS = [
-    ["close", "退出查看"],
-    ["pixelate", "切换像素化渲染 (去平滑)"],
-    ["checker", "切换透明网格背景"],
-    ["rotateLeft", "逆时针旋转 90°"],
-    ["rotateRight", "顺时针旋转 90°"],
-    ["flipH", "水平镜像翻转"],
-    ["flipV", "垂直镜像翻转"],
-    ["up", "向上平移视图"],
-    ["down", "向下平移视图"],
-    ["left", "向左平移视图"],
-    ["right", "向右平移视图"]
+  const KEY_DEFS = [
+    ["close", "keyClose"],
+    ["pixelate", "keyPixelate"],
+    ["checker", "keyChecker"],
+    ["rotateLeft", "keyRotateLeft"],
+    ["rotateRight", "keyRotateRight"],
+    ["flipH", "keyFlipH"],
+    ["flipV", "keyFlipV"],
+    ["up", "keyUp"],
+    ["down", "keyDown"],
+    ["left", "keyLeft"],
+    ["right", "keyRight"]
   ];
+
+  function getChoices(name, lang) {
+    const list = CHOICE_DEFS[name] || [];
+    return list.map(([value, i18nKey]) => [
+      value,
+      globalThis.PicoI18n ? PicoI18n.t(i18nKey, null, lang) : i18nKey
+    ]);
+  }
+
+  function getKeyFields(lang) {
+    return KEY_DEFS.map(([key, i18nKey]) => [
+      key,
+      globalThis.PicoI18n ? PicoI18n.t(i18nKey, null, lang) : i18nKey
+    ]);
+  }
 
   function normalize(raw) {
     const source = raw && typeof raw === "object" ? raw : {};
     const next = { ...DEFAULTS };
-    if (CHOICES.backgroundMode.some(([value]) => value === source.backgroundMode)) next.backgroundMode = source.backgroundMode;
-    if (CHOICES.startZoom.some(([value]) => value === source.startZoom)) next.startZoom = source.startZoom;
-    if (CHOICES.position.some(([value]) => value === source.position)) next.position = source.position;
-    if (CHOICES.controls.some(([value]) => value === source.controls)) next.controls = source.controls;
+    if (CHOICE_DEFS.language.some(([value]) => value === source.language)) next.language = source.language;
+    if (CHOICE_DEFS.backgroundMode.some(([value]) => value === source.backgroundMode)) next.backgroundMode = source.backgroundMode;
+    if (CHOICE_DEFS.startZoom.some(([value]) => value === source.startZoom)) next.startZoom = source.startZoom;
+    if (CHOICE_DEFS.position.some(([value]) => value === source.position)) next.position = source.position;
+    if (CHOICE_DEFS.controls.some(([value]) => value === source.controls)) next.controls = source.controls;
     if (isColor(source.backgroundColor)) next.backgroundColor = source.backgroundColor;
     if (isColor(source.backgroundColorSvg)) next.backgroundColorSvg = source.backgroundColorSvg;
     for (const name of ["smooth", "keepInside", "closeOnBackgroundClick", "openInCurrentTab", "invertZoom", "invertVertical", "invertHorizontal", "invertRotate"]) {
@@ -111,5 +133,14 @@ globalThis.PicoSettings = (() => {
     await chrome.storage.local.set({ settings: normalize(settings) });
   }
 
-  return { DEFAULTS, CHOICES, KEY_FIELDS, normalize, load, save };
+  return {
+    DEFAULTS,
+    CHOICE_DEFS,
+    KEY_DEFS,
+    getChoices,
+    getKeyFields,
+    normalize,
+    load,
+    save
+  };
 })();

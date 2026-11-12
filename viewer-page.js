@@ -16,31 +16,34 @@
     }
   }
 
-  document.title = imageTitle(src);
+  const settings = await PicoSettings.load();
+  const lang = settings.language;
+  document.documentElement.lang = PicoI18n.resolveLanguage(lang);
+  document.title = imageTitle(src, lang);
 
   if (!src) {
     const title = document.createElement("h1");
     title.className = "visually-hidden";
-    title.textContent = "PicoView 图片查看";
+    title.textContent = PicoI18n.t("viewerImageTitle", null, lang);
     const message = document.createElement("p");
     message.className = "message";
-    message.textContent = "打不开这张图片。";
+    message.textContent = PicoI18n.t("imageCannotOpen", null, lang);
     root.replaceChildren(title, message);
     return;
   }
 
-  const settings = await PicoSettings.load();
   const isSvg = /^data:image\/svg/i.test(src) || /\.svg(?:$|[?#])/i.test(src);
   PicoViewer.mount(root, { src, isSvg, settings });
 })();
 
-function imageTitle(url) {
+function imageTitle(url, lang) {
+  const fallback = PicoI18n.t("viewerImageTitle", null, lang);
   try {
     const parsed = new URL(url);
-    if (parsed.protocol === "data:") return "PicoView 图片查看";
+    if (parsed.protocol === "data:") return fallback;
     const name = decodeURIComponent(parsed.pathname.split("/").pop() || "");
-    return name ? `${name} - PicoView` : "PicoView 图片查看";
+    return name ? `${name} - PicoView` : fallback;
   } catch {
-    return "PicoView 图片查看";
+    return fallback;
   }
 }

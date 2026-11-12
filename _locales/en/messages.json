@@ -1,0 +1,18 @@
+{
+  "extName": {
+    "message": "PicoView",
+    "description": "The extension name"
+  },
+  "extDescription": {
+    "message": "PicoView - A sleek, fast, and modern image viewer extension. Pan, zoom, rotate, inspect transparent grids, and view pixel art with ease.",
+    "description": "The extension description"
+  },
+  "actionTitle": {
+    "message": "PicoView Settings",
+    "description": "The tooltip title for the toolbar icon"
+  },
+  "contextMenuOpenImage": {
+    "message": "Open image in current tab",
+    "description": "Context menu title for opening an image"
+  }
+}

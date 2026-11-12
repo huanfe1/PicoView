@@ -1,11 +1,15 @@
 <p align="center">
-  <img src="./assets/banner.png" alt="PicoView Banner" width="480" style="border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.12);" />
+  <img src="./assets/banner.png" alt="PicoView Banner" width="160" />
 </p>
 
 <h1 align="center">PicoView</h1>
 
 <p align="center">
   <strong>轻巧、极速、现代的浏览器独立图片查看增强扩展</strong>
+</p>
+
+<p align="center">
+  <strong>简体中文</strong> | <a href="./README_EN.md">English</a>
 </p>
 
 <p align="center">
@@ -94,6 +98,7 @@
 点击浏览器工具栏上的 PicoView 图标，或右键图标选择“选项”，即可进入设置页面：
 
 - **外观与视图**：
+  - **界面语言**：跟随系统 (Auto) / English / 简体中文。
   - **背景样式**：纯色背景 / 当前图片模糊虚化。
   - **常规图片背景色**：自定义位图背后的背景色彩。
   - **SVG 矢量图背景色**：独立设置矢量图背景（如纯白或特定对比色）。
@@ -112,9 +117,13 @@
 
 ```text
 PicoView/
+├── _locales/                      # Chrome 扩展标准国际化多语言包
+│   ├── en/messages.json           # 英文语言包
+│   └── zh_CN/messages.json        # 简体中文语言包
 ├── manifest.json                  # 扩展清单配置 (Manifest V3)
 ├── background.js                  # 后台 Service Worker (右键菜单、特殊协议转发)
 ├── content.js                     # 独立图片标签页注入与自启动接管
+├── i18n.js                        # 轻量化双语管理模块与多语言字典
 ├── viewer-core.js                 # PicoView 核心视图引擎 (平移/缩放/手势/变换)
 ├── viewer-css.js                  # 查看器核心注入样式与动效
 ├── viewer-page.js                 # 独立 viewer.html 运行入口脚本
@@ -127,7 +136,8 @@ PicoView/
 ├── assets/                        # 项目设计资源与文档素材
 │   ├── logo.png                   # PicoView 高清原始应用图标 (512x512)
 │   └── banner.png                 # README 官方介绍与展示大图
-└── README.md                      # 项目说明文档
+├── README.md                      # 项目说明文档 (简体中文)
+└── README_EN.md                   # 项目说明文档 (English)
 ```
 
 ---

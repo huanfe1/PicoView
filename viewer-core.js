@@ -36,9 +36,10 @@ const PicoViewer = (() => {
     }
 
     build() {
+      const lang = this.settings.language;
       this.title = document.createElement("h1");
       this.title.className = "visually-hidden";
-      this.title.textContent = "PicoView 图片查看";
+      this.title.textContent = PicoI18n.t("viewerImageTitle", null, lang);
 
       this.blur = document.createElement("img");
       this.blur.className = "blur";
@@ -47,7 +48,7 @@ const PicoViewer = (() => {
 
       this.photo = document.createElement("img");
       this.photo.className = "photo";
-      this.photo.alt = imageName(this.src);
+      this.photo.alt = imageName(this.src, lang);
       this.photo.draggable = true;
       this.photo.setAttribute("fetchpriority", "high");
 
@@ -62,7 +63,7 @@ const PicoViewer = (() => {
       this.stage = document.createElement("div");
       this.stage.className = "stage";
       this.stage.tabIndex = 0;
-      this.stage.setAttribute("aria-label", "图片。方向键平移，滚轮缩放。");
+      this.stage.setAttribute("aria-label", PicoI18n.t("stageAriaLabel", null, lang));
       this.stage.append(this.blur, this.frame, this.message);
 
       this.live = document.createElement("div");
@@ -83,13 +84,16 @@ const PicoViewer = (() => {
       this.photo.addEventListener("load", () => this.onLoad());
       this.photo.addEventListener("error", () => {
         this.message.hidden = false;
-        this.message.textContent = "这张图片没有显示出来。";
+        this.message.textContent = PicoI18n.t("imageLoadError", null, this.settings.language);
       });
       this.onWheel = this.onWheel.bind(this);
       this.onKeyDown = this.onKeyDown.bind(this);
       this.onSettingsChanged = (changes, area) => {
         if (area !== "local" || !changes.settings) return;
         this.settings = PicoSettings.normalize(changes.settings.newValue);
+        const lang = this.settings.language;
+        this.title.textContent = PicoI18n.t("viewerImageTitle", null, lang);
+        this.stage.setAttribute("aria-label", PicoI18n.t("stageAriaLabel", null, lang));
         this.applyChrome();
         if (this.ready) this.render();
       };
@@ -267,33 +271,39 @@ const PicoViewer = (() => {
       } else if (action === "fit") {
         this.zoomAt(this.viewW / 2, this.viewH / 2, this.fitScale());
         this.render(true);
-        this.announce("适合窗口");
+        this.announce(PicoI18n.t("annFit", null, this.settings.language));
       } else if (action === "actual") {
         this.zoomAt(this.viewW / 2, this.viewH / 2, 1);
         this.render(true);
-        this.announce("实际大小");
+        this.announce(PicoI18n.t("annActual", null, this.settings.language));
       } else if (action === "rotate-left" || action === "rotate-right") {
         const delta = action === "rotate-left" ? -90 : 90;
         this.keepPoint(() => {
           this.rotation += delta;
         });
         this.render(true);
-        this.announce("旋转 " + normalizeDegrees(this.rotation) + " 度");
+        this.announce(PicoI18n.t("annRotate", [normalizeDegrees(this.rotation)], this.settings.language));
       } else if (action === "flip-h" || action === "flip-v") {
         this.keepPoint(() => {
           if (action === "flip-h") this.flipH *= -1;
           else this.flipV *= -1;
         });
         this.render(true);
-        this.announce(action === "flip-h" ? "已水平翻转" : "已垂直翻转");
+        this.announce(action === "flip-h"
+          ? PicoI18n.t("annFlipH", null, this.settings.language)
+          : PicoI18n.t("annFlipV", null, this.settings.language));
       } else if (action === "pixelate") {
         this.pixelated = !this.pixelated;
         this.applyChrome();
-        this.announce(this.pixelated ? "像素显示已打开" : "像素显示已关闭");
+        this.announce(this.pixelated
+          ? PicoI18n.t("annPixelateOn", null, this.settings.language)
+          : PicoI18n.t("annPixelateOff", null, this.settings.language));
       } else if (action === "checker") {
         this.checker = !this.checker;
         this.applyChrome();
-        this.announce(this.checker ? "棋盘背景已打开" : "棋盘背景已关闭");
+        this.announce(this.checker
+          ? PicoI18n.t("annCheckerOn", null, this.settings.language)
+          : PicoI18n.t("annCheckerOff", null, this.settings.language));
       } else if (action.startsWith("pan-")) {
         const step = 48;
         if (action === "pan-up") this.panY += step;
@@ -301,7 +311,7 @@ const PicoViewer = (() => {
         if (action === "pan-left") this.panX += step;
         if (action === "pan-right") this.panX -= step;
         this.render(true);
-        this.announce("已平移");
+        this.announce(PicoI18n.t("annPan", null, this.settings.language));
       } else if (action === "close") {
         this.requestClose();
       }
@@ -356,7 +366,9 @@ const PicoViewer = (() => {
       this.panX = 0;
       this.panY = 0;
       this.render(true);
-      this.announce(Math.abs(this.zoom - 1) < 0.001 ? "实际大小" : "适合窗口");
+      this.announce(Math.abs(this.zoom - 1) < 0.001
+        ? PicoI18n.t("annActual", null, this.settings.language)
+        : PicoI18n.t("annFit", null, this.settings.language));
     }
 
     onWheel(event) {
@@ -416,22 +428,22 @@ const PicoViewer = (() => {
         event.preventDefault();
         this.panY += step;
         this.render(true);
-        if (!event.repeat) this.announce("已向上平移");
+        if (!event.repeat) this.announce(PicoI18n.t("annPanUp", null, this.settings.language));
       } else if (matchesKey(event, keys.down)) {
         event.preventDefault();
         this.panY -= step;
         this.render(true);
-        if (!event.repeat) this.announce("已向下平移");
+        if (!event.repeat) this.announce(PicoI18n.t("annPanDown", null, this.settings.language));
       } else if (matchesKey(event, keys.left)) {
         event.preventDefault();
         this.panX += step;
         this.render(true);
-        if (!event.repeat) this.announce("已向左平移");
+        if (!event.repeat) this.announce(PicoI18n.t("annPanLeft", null, this.settings.language));
       } else if (matchesKey(event, keys.right)) {
         event.preventDefault();
         this.panX -= step;
         this.render(true);
-        if (!event.repeat) this.announce("已向右平移");
+        if (!event.repeat) this.announce(PicoI18n.t("annPanRight", null, this.settings.language));
       }
     }
 
@@ -443,13 +455,13 @@ const PicoViewer = (() => {
     }
   }
 
-  function imageName(url) {
+  function imageName(url, lang) {
     try {
       const path = new URL(url, location.href).pathname;
       const name = decodeURIComponent(path.split("/").pop() || "");
-      return name || "当前图片";
+      return name || PicoI18n.t("currentImage", null, lang);
     } catch {
-      return "当前图片";
+      return PicoI18n.t("currentImage", null, lang);
     }
   }
 

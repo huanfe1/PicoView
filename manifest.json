@@ -1,10 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "PicoView",
+  "name": "__MSG_extName__",
   "version": "1.0.0",
-  "description": "PicoView - 简洁强大的现代图片查看器，支持平移、缩放、旋转、透明网格与像素化等高级视图操作。",
+  "default_locale": "en",
+  "description": "__MSG_extDescription__",
   "action": {
-    "default_title": "PicoView 设置",
+    "default_title": "__MSG_actionTitle__",
     "default_icon": {
       "16": "icons/icon16.png",
       "24": "icons/icon24.png",
@@ -23,7 +24,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["settings.js", "viewer-css.js", "viewer-core.js", "content.js"],
+      "js": ["i18n.js", "settings.js", "viewer-css.js", "viewer-core.js", "content.js"],
       "run_at": "document_start",
       "all_frames": false
     }
