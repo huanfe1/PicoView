@@ -2,6 +2,8 @@ const PicoViewer = (() => {
   const MIN_ZOOM = 0.02;
   const MAX_ZOOM = 40;
   const DRAG_THRESHOLD = 4;
+  const SMOOTH_MS = 100;
+  const SETTLE_MS = 180;
 
   function mount(container, options) {
     const viewer = new ImageViewer(container, options);
@@ -30,7 +32,9 @@ const PicoViewer = (() => {
       this.pixelated = false;
       this.checker = false;
       this.pointer = null;
-      this.smoothTimer = 0;
+      this.motion = null;
+      this.motionFrame = 0;
+      this.shown = null;
       this.build();
       this.listen();
     }
@@ -115,7 +119,7 @@ const PicoViewer = (() => {
       window.removeEventListener("wheel", this.onWheel, { capture: true });
       window.removeEventListener("keydown", this.onKeyDown);
       this.resizeObserver?.disconnect();
-      window.clearTimeout(this.smoothTimer);
+      this.stopMotion();
       try {
         chrome.storage.onChanged.removeListener(this.onSettingsChanged);
       } catch (error) {
@@ -226,28 +230,82 @@ const PicoViewer = (() => {
       return { w: w * cos + h * sin, h: w * sin + h * cos };
     }
 
+    motionAllowed() {
+      return this.settings.smooth && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+
+    capture() {
+      return {
+        zoom: this.zoom,
+        panX: this.panX,
+        panY: this.panY,
+        rotation: this.rotation,
+        flipH: this.flipH,
+        flipV: this.flipV
+      };
+    }
+
+    sample(now) {
+      const motion = this.motion;
+      if (!motion) return this.shown || this.capture();
+      return lerpView(motion.from, motion.to, this.motionProgress(motion, now));
+    }
+
+    motionProgress(motion, now) {
+      const raw = (now - motion.start) / motion.duration;
+      const t = Math.min(Math.max(raw, 0), 1);
+      if (!motion.settle) return t;
+      const remaining = 1 - t;
+      return 1 - remaining * remaining * remaining;
+    }
+
     render(smooth = false) {
       this.clampPan();
-      const allowSmooth = this.settings.smooth && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      this.root.classList.toggle("is-smooth", smooth && allowSmooth && !this.pointer);
-      const sx = this.zoom * this.flipH;
-      const sy = this.zoom * this.flipV;
-      this.frame.style.transform = `translate(${this.viewW / 2 + this.panX}px, ${this.viewH / 2 + this.panY}px) rotate(${this.rotation}deg) scale(${sx}, ${sy}) translate(${-this.natW / 2}px, ${-this.natH / 2}px)`;
+      const target = this.capture();
+      const settle = smooth === "settle";
+      const animate = (smooth === true || settle) && this.motionAllowed() && !this.pointer && viewMoved(this.sample(performance.now()), target);
+      if (!animate) {
+        this.stopMotion();
+        this.paint(target);
+        return;
+      }
+      this.motion = {
+        start: performance.now(),
+        from: this.sample(performance.now()),
+        to: target,
+        duration: settle ? SETTLE_MS : SMOOTH_MS,
+        settle
+      };
+      this.tickMotion();
+    }
+
+    tickMotion() {
+      if (this.motionFrame) return;
+      this.motionFrame = window.requestAnimationFrame((now) => {
+        this.motionFrame = 0;
+        const motion = this.motion;
+        if (!motion) return;
+        const t = this.motionProgress(motion, now);
+        this.paint(lerpView(motion.from, motion.to, t));
+        const done = now - motion.start >= motion.duration;
+        if (!done && this.motion === motion) this.tickMotion();
+        else if (this.motion === motion) this.motion = null;
+      });
+    }
+
+    stopMotion() {
+      this.motion = null;
+      if (!this.motionFrame) return;
+      window.cancelAnimationFrame(this.motionFrame);
+      this.motionFrame = 0;
+    }
+
+    paint(state) {
+      this.shown = state;
+      const sx = state.zoom * state.flipH;
+      const sy = state.zoom * state.flipV;
+      this.frame.style.transform = `translate(${this.viewW / 2 + state.panX}px, ${this.viewH / 2 + state.panY}px) rotate(${state.rotation}deg) scale(${sx}, ${sy}) translate(${-this.natW / 2}px, ${-this.natH / 2}px)`;
       this.zoomText = Math.round(this.zoom * 100) + "%";
-    }
-
-    beginInteraction() {
-      this.root.classList.remove("is-smooth");
-      window.clearTimeout(this.smoothTimer);
-    }
-
-    endInteractionSoon() {
-      window.clearTimeout(this.smoothTimer);
-      this.smoothTimer = window.setTimeout(() => {
-        if (this.settings.smooth && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-          this.root.classList.add("is-smooth");
-        }
-      }, 140);
     }
 
     applyChrome() {
@@ -345,10 +403,7 @@ const PicoViewer = (() => {
       const dx = event.clientX - this.pointer.x;
       const dy = event.clientY - this.pointer.y;
       if (!this.pointer.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
-      if (!this.pointer.moved) {
-        this.pointer.moved = true;
-        this.beginInteraction();
-      }
+      if (!this.pointer.moved) this.pointer.moved = true;
       this.panX = this.pointer.panX + dx;
       this.panY = this.pointer.panY + dy;
       this.render(false);
@@ -357,7 +412,6 @@ const PicoViewer = (() => {
     onLostCapture() {
       const pointer = this.pointer;
       this.pointer = null;
-      this.endInteractionSoon();
       if (!pointer || pointer.moved || !this.ready) return;
       if (pointer.target === this.stage && this.settings.closeOnBackgroundClick && this.requestClose()) return;
       const fit = this.fitScale();
@@ -365,7 +419,7 @@ const PicoViewer = (() => {
       this.zoom = clamp(next, MIN_ZOOM, MAX_ZOOM);
       this.panX = 0;
       this.panY = 0;
-      this.render(true);
+      this.render("settle");
       this.announce(Math.abs(this.zoom - 1) < 0.001
         ? PicoI18n.t("annActual", null, this.settings.language)
         : PicoI18n.t("annFit", null, this.settings.language));
@@ -377,7 +431,7 @@ const PicoViewer = (() => {
       const { dx, dy } = wheelPixels(event);
       const isPicoControls = this.settings.controls !== "chrome";
       const dominant = Math.abs(dy) >= Math.abs(dx) ? dy : dx;
-      this.beginInteraction();
+      const zooming = !event.altKey && !event.shiftKey && (isPicoControls ? !event.ctrlKey : event.ctrlKey);
       if (event.altKey) {
         const sign = this.settings.invertRotate ? -1 : 1;
         this.keepPoint(() => {
@@ -386,16 +440,15 @@ const PicoViewer = (() => {
       } else if (event.shiftKey) {
         const sign = this.settings.invertHorizontal ? -1 : 1;
         this.panX -= dominant * sign;
-      } else if (isPicoControls ? event.ctrlKey : !event.ctrlKey) {
-        const sign = this.settings.invertVertical ? -1 : 1;
-        this.panY -= dominant * sign;
-      } else {
+      } else if (zooming) {
         const sign = this.settings.invertZoom ? -1 : 1;
         const rect = this.stage.getBoundingClientRect();
         this.zoomAt(event.clientX - rect.left, event.clientY - rect.top, this.zoom * Math.exp(-dominant * 0.0015 * sign));
+      } else {
+        const sign = this.settings.invertVertical ? -1 : 1;
+        this.panY -= dominant * sign;
       }
-      this.render(false);
-      this.endInteractionSoon();
+      this.render(zooming);
     }
 
     onKeyDown(event) {
@@ -493,6 +546,26 @@ const PicoViewer = (() => {
   function normalizeDegrees(value) {
     const rounded = Math.round(value) % 360;
     return rounded < 0 ? rounded + 360 : rounded;
+  }
+
+  function lerpView(from, to, t) {
+    return {
+      zoom: from.zoom + (to.zoom - from.zoom) * t,
+      panX: from.panX + (to.panX - from.panX) * t,
+      panY: from.panY + (to.panY - from.panY) * t,
+      rotation: from.rotation + (to.rotation - from.rotation) * t,
+      flipH: from.flipH + (to.flipH - from.flipH) * t,
+      flipV: from.flipV + (to.flipV - from.flipV) * t
+    };
+  }
+
+  function viewMoved(from, to) {
+    return Math.abs(from.zoom - to.zoom) > 0.0001
+      || Math.abs(from.panX - to.panX) > 0.1
+      || Math.abs(from.panY - to.panY) > 0.1
+      || Math.abs(from.rotation - to.rotation) > 0.01
+      || from.flipH !== to.flipH
+      || from.flipV !== to.flipV;
   }
 
   function clamp(value, min, max) {

@@ -69,18 +69,9 @@ html.picoview-page body {
   position: absolute;
   top: 0;
   left: 0;
+  transform: translate(0px);
   transform-origin: 0 0;
   will-change: transform;
-}
-
-.is-smooth .frame {
-  transition: transform 180ms ease;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .is-smooth .frame {
-    transition: none;
-  }
 }
 
 .photo {
