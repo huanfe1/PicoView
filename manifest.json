@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "PicoView",
+  "version": "1.0.0",
+  "description": "PicoView - 简洁强大的现代图片查看器，支持平移、缩放、旋转、透明网格与像素化等高级视图操作。",
+  "action": {
+    "default_title": "PicoView 设置",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "24": "icons/icon24.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "permissions": ["storage", "contextMenus", "webNavigation", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["settings.js", "viewer-css.js", "viewer-core.js", "content.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "24": "icons/icon24.png",
+    "32": "icons/icon32.png",
+    "64": "icons/icon64.png",
+    "96": "icons/icon96.png",
+    "128": "icons/icon128.png"
+  }
+}
