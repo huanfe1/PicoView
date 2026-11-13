@@ -74,24 +74,16 @@ All keyboard shortcuts can be rebound or cleared in the Settings page:
 
 ## 🚀 Installation & Usage
 
-PicoView runs natively without build or compilation steps. You can load it directly in Developer Mode:
-
-1. **Clone or Download the Repository**:
-   ```bash
-   git clone https://github.com/your-username/PicoView.git
-   ```
-2. **Open the Extensions Page**:
-   In any Chromium browser (Google Chrome, Microsoft Edge, Brave, Arc, Vivaldi, etc.), navigate to:
+1. **Download the archive**: Open [Releases](https://github.com/huanfe1/PicoView/releases) and download the latest `PicoView-v*.zip`.
+2. **Unzip**: Unzipping it gives you a `PicoView` folder. Keep the folder intact instead of pulling out individual files.
+3. **Open the extensions page**: In Chrome, go to:
    ```text
    chrome://extensions
    ```
-   *(For Microsoft Edge: `edge://extensions`)*
-3. **Enable Developer Mode**:
-   Toggle the **Developer mode** switch in the top-right corner.
-4. **Load the Extension**:
-   Click **Load unpacked** in the top-left corner and select the `PicoView` root directory.
-5. **Start Viewing**:
-   Open any standalone image URL, or right-click an image on any webpage and choose **"Open image in current tab"**!
+   Edge uses `edge://extensions`. Brave, Arc, Vivaldi, and other Chromium browsers use their own extensions page.
+4. **Turn on Developer mode**: Enable **Developer mode** in the top-right corner.
+5. **Load the extension**: Click **Load unpacked** and select the unzipped `PicoView` folder.
+6. **Start viewing**: Open a standalone image URL, or right-click an image on a webpage and choose **"Open image in current tab"**.
 
 ---
 
@@ -121,23 +113,24 @@ Click the PicoView icon in the browser toolbar or right-click it and choose "Opt
 
 ```text
 PicoView/
-├── _locales/                      # Chrome Extension i18n locales
-│   ├── en/messages.json           # English messages
-│   └── zh_CN/messages.json        # Simplified Chinese messages
-├── manifest.json                  # Manifest V3 extension configuration
-├── background.js                  # Background service worker (context menu & routing)
-├── content.js                     # Content script for standalone image tabs
-├── i18n.js                        # Lightweight unified i18n manager & dictionaries
-├── viewer-core.js                 # PicoView view engine (pan/zoom/gestures/transforms)
-├── viewer-css.js                  # Core injected styles and animations
-├── viewer-page.js                 # Standalone viewer sandbox runner
-├── viewer.html                    # Isolated viewer sandbox page
-├── settings.js                    # Centralized settings loading & schema normalization
-├── options.html                   # Options page layout
-├── options.js                     # Options page logic & key recording
-├── options.css                    # Options page modern UI styling
-├── icons/                         # Extension icons (16px to 128px)
-├── assets/                        # Design assets and documentation media
+├── src/                           # Extension source; release archives are packed from here
+│   ├── _locales/                  # Chrome Extension i18n locales
+│   │   ├── en/messages.json       # English messages
+│   │   └── zh_CN/messages.json    # Simplified Chinese messages
+│   ├── manifest.json              # Manifest V3 extension configuration
+│   ├── background.js              # Background service worker (context menu & routing)
+│   ├── content.js                 # Content script for standalone image tabs
+│   ├── i18n.js                    # Lightweight unified i18n manager & dictionaries
+│   ├── viewer-core.js             # PicoView view engine (pan/zoom/gestures/transforms)
+│   ├── viewer-css.js              # Core injected styles and animations
+│   ├── viewer-page.js             # Standalone viewer sandbox runner
+│   ├── viewer.html                # Isolated viewer sandbox page
+│   ├── settings.js                # Centralized settings loading & schema normalization
+│   ├── options.html               # Options page layout
+│   ├── options.js                 # Options page logic & key recording
+│   ├── options.css                # Options page modern UI styling
+│   └── icons/                     # Extension icons (16px to 128px)
+├── assets/                        # Design assets and documentation media (not shipped)
 │   ├── logo.png                   # PicoView high-resolution app icon (512x512)
 │   └── banner.png                 # README official display banner
 ├── README.md                      # Documentation (简体中文)

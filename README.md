@@ -72,24 +72,16 @@
 
 ## 🚀 安装与使用
 
-由于 PicoView 采用无编译步骤的原生架构，您可以直接在本地以开发者模式加载：
-
-1. **下载或克隆代码仓库**：
-   ```bash
-   git clone https://github.com/your-username/PicoView.git
-   ```
-2. **打开浏览器扩展页面**：
-   在基于 Chromium 的浏览器（Google Chrome、Microsoft Edge、Brave、Arc、Vivaldi 等）地址栏输入：
+1. **下载压缩包**：打开 [Releases](https://github.com/huanfe1/PicoView/releases)，下载最新的 `PicoView-v*.zip`。
+2. **解压**：解压后得到 `PicoView` 文件夹。请保留整个文件夹，不要只抽出里面的单个文件。
+3. **打开扩展页面**：在 Chrome 地址栏输入：
    ```text
    chrome://extensions
    ```
-   *（Edge 浏览器为 `edge://extensions`）*
-3. **开启开发者模式**：
-   在扩展页面右上角打开 **“开发者模式” (Developer mode)** 开关。
-4. **加载插件**：
-   点击左上角的 **“加载已解压的扩展程序” (Load unpacked)** 按钮，选择 `PicoView` 所在的项目根目录。
-5. **体验查看**：
-   在任意网页中点击图片链接，或在网页图片上右键选择 **“在当前标签页打开图片”**，即可进入 PicoView！
+   Edge 为 `edge://extensions`。Brave、Arc、Vivaldi 等 Chromium 浏览器同样使用扩展管理页。
+4. **开启开发者模式**：在扩展页面右上角打开 **开发者模式**。
+5. **加载扩展**：点击 **加载已解压的扩展程序**，选择刚才解压出来的 `PicoView` 文件夹。
+6. **开始使用**：在任意网页中点击图片链接，或在网页图片上右键选择 **“在当前标签页打开图片”**，即可进入 PicoView。
 
 ---
 
@@ -117,23 +109,24 @@
 
 ```text
 PicoView/
-├── _locales/                      # Chrome 扩展标准国际化多语言包
-│   ├── en/messages.json           # 英文语言包
-│   └── zh_CN/messages.json        # 简体中文语言包
-├── manifest.json                  # 扩展清单配置 (Manifest V3)
-├── background.js                  # 后台 Service Worker (右键菜单、特殊协议转发)
-├── content.js                     # 独立图片标签页注入与自启动接管
-├── i18n.js                        # 轻量化双语管理模块与多语言字典
-├── viewer-core.js                 # PicoView 核心视图引擎 (平移/缩放/手势/变换)
-├── viewer-css.js                  # 查看器核心注入样式与动效
-├── viewer-page.js                 # 独立 viewer.html 运行入口脚本
-├── viewer.html                    # 独立查看器沙箱页面 (支持 base64/blob/SVG)
-├── settings.js                    # 统一配置加载、校验与持久化存储模块
-├── options.html                   # 设置页面结构
-├── options.js                     # 设置页面交互与按键录制
-├── options.css                    # 设置页面现代 UI 样式
-├── icons/                         # 各种分辨率的扩展图标 (16~128px)
-├── assets/                        # 项目设计资源与文档素材
+├── src/                           # 扩展源码，Release 压缩包由这里打包
+│   ├── _locales/                  # Chrome 扩展标准国际化多语言包
+│   │   ├── en/messages.json       # 英文语言包
+│   │   └── zh_CN/messages.json    # 简体中文语言包
+│   ├── manifest.json              # 扩展清单配置 (Manifest V3)
+│   ├── background.js              # 后台 Service Worker (右键菜单、特殊协议转发)
+│   ├── content.js                 # 独立图片标签页注入与自启动接管
+│   ├── i18n.js                    # 轻量化双语管理模块与多语言字典
+│   ├── viewer-core.js             # PicoView 核心视图引擎 (平移/缩放/手势/变换)
+│   ├── viewer-css.js              # 查看器核心注入样式与动效
+│   ├── viewer-page.js             # 独立 viewer.html 运行入口脚本
+│   ├── viewer.html                # 独立查看器沙箱页面 (支持 base64/blob/SVG)
+│   ├── settings.js                # 统一配置加载、校验与持久化存储模块
+│   ├── options.html               # 设置页面结构
+│   ├── options.js                 # 设置页面交互与按键录制
+│   ├── options.css                # 设置页面现代 UI 样式
+│   └── icons/                     # 各种分辨率的扩展图标 (16~128px)
+├── assets/                        # 项目设计资源与文档素材（不进入扩展包）
 │   ├── logo.png                   # PicoView 高清原始应用图标 (512x512)
 │   └── banner.png                 # README 官方介绍与展示大图
 ├── README.md                      # 项目说明文档 (简体中文)
