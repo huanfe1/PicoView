@@ -29,6 +29,9 @@ const PicoViewer = (() => {
       this.viewW = 1;
       this.viewH = 1;
       this.ready = false;
+      this.placed = false;
+      this.destroyed = false;
+      this.sizeFrame = 0;
       this.pixelated = false;
       this.checker = false;
       this.pointer = null;
@@ -87,6 +90,7 @@ const PicoViewer = (() => {
       });
       this.photo.addEventListener("load", () => this.onLoad());
       this.photo.addEventListener("error", () => {
+        this.stopSizeWatch();
         this.message.hidden = false;
         this.message.textContent = PicoI18n.t("imageLoadError", null, this.settings.language);
       });
@@ -116,6 +120,8 @@ const PicoViewer = (() => {
     }
 
     destroy() {
+      this.destroyed = true;
+      this.stopSizeWatch();
       window.removeEventListener("wheel", this.onWheel, { capture: true });
       window.removeEventListener("keydown", this.onKeyDown);
       this.resizeObserver?.disconnect();
@@ -130,20 +136,47 @@ const PicoViewer = (() => {
     start() {
       this.blur.src = this.src;
       this.photo.src = this.src;
+      this.revealWhenSized();
+    }
+
+    revealWhenSized() {
+      if (this.destroyed || this.placed) return;
+      const w = this.photo.naturalWidth;
+      const h = this.photo.naturalHeight;
+      if (w > 0 && h > 0) {
+        this.placeImage(w, h);
+        return;
+      }
+      if (this.photo.complete) return;
+      this.sizeFrame = window.requestAnimationFrame(() => this.revealWhenSized());
+    }
+
+    stopSizeWatch() {
+      if (!this.sizeFrame) return;
+      window.cancelAnimationFrame(this.sizeFrame);
+      this.sizeFrame = 0;
     }
 
     onLoad() {
-      this.natW = this.photo.naturalWidth || this.photo.width || 1;
-      this.natH = this.photo.naturalHeight || this.photo.height || 1;
-      this.photo.width = this.natW;
-      this.photo.height = this.natH;
-      this.blur.width = this.natW;
-      this.blur.height = this.natH;
+      this.placeImage(this.photo.naturalWidth || this.photo.width || 1, this.photo.naturalHeight || this.photo.height || 1);
+    }
+
+    placeImage(w, h) {
+      if (this.destroyed || this.placed) return;
+      this.placed = true;
+      this.stopSizeWatch();
+      this.natW = w;
+      this.natH = h;
+      this.photo.width = w;
+      this.photo.height = h;
+      this.blur.width = w;
+      this.blur.height = h;
       this.ready = true;
       this.message.hidden = true;
       this.measure();
       this.resetView();
       this.render();
+      this.frame.classList.add("is-shown");
     }
 
     measure() {

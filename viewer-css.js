@@ -77,6 +77,11 @@ html.picoview-page body {
 .photo {
   display: block;
   max-width: none;
+  visibility: hidden;
+}
+
+.frame.is-shown .photo {
+  visibility: visible;
 }
 
 .photo.is-pixelated {
