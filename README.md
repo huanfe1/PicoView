@@ -5,11 +5,11 @@
 <h1 align="center">PicoView</h1>
 
 <p align="center">
-  <strong>轻巧、极速、现代的浏览器独立图片查看增强扩展</strong>
+  <strong>A sleek, ultra-fast, and modern image viewer extension for Chromium-based browsers</strong>
 </p>
 
 <p align="center">
-  <strong>简体中文</strong> | <a href="./README_EN.md">English</a>
+  <strong>English</strong> | <a href="./README_CN.md">简体中文</a>
 </p>
 
 <p align="center">
@@ -21,121 +21,124 @@
 
 ---
 
-## 📖 简介
+## 📖 Introduction
 
-在 Chromium 内核浏览器中，直接打开独立图片标签页时的默认体验往往过于简陋：缩放比例固定、不支持拖拽旋转、无法便捷检查透明底图或像素细节。
+When opening standalone image tabs in Chromium browsers, the native viewer experience is often bare-bones: zoom increments are rigid, panning and rotating are unsupported, and transparent backgrounds or pixel-level details are difficult to inspect.
 
-**PicoView** 是一款现代、优雅且零外部依赖的浏览器图片查看扩展（Chrome Extension Manifest V3）。它将单调的独立图片标签页升级为功能完备、交互丝滑的高性能图片查看台，无论日常浏览、摄影鉴赏、矢量图标审阅还是像素艺术分析，都能带来极其舒适的使用体验。
-
----
-
-## ✨ 核心特性
-
-- 🚀 **极速无负担**：完全采用原生 JavaScript 与 CSS 构建，零第三方依赖，加载迅速，内存占用极低。
-- 🔍 **无级平滑缩放**：支持以鼠标指针为锚点进行超高倍率缩放（支持 2% ~ 4000%），细微瑕疵与宏观全局尽收眼底。
-- 🖐️ **自由平移漫游**：按住鼠标左键即可随意拖拽图片在视野内平移，支持惯性与窗口边缘约束。
-- 🔄 **旋转与镜像翻转**：支持顺时针/逆时针 90° 旋转，并提供水平（H）与垂直（V）镜像翻转功能。
-- 🏁 **透明网格背景**：针对透明 PNG、WebP 及 SVG 矢量图，一键切换黑白相间的经典透明棋盘格背景。
-- 👾 **像素化模式 (Pixelated)**：专为像素艺术与小尺寸 Icon 优化，一键关闭抗锯齿线性插值，显示锐利、无模糊的原始像素颗粒。
-- 🎨 **沉浸式视觉底色**：
-  - 支持纯色背景，位图与 SVG 底色可独立调配。
-  - 支持当前图片色彩自适应提取并生成毛玻璃高斯模糊背景。
-- ⚡ **深思熟虑的交互细节**：
-  - SVG 专属独立着色底板，告别深色模式下透明黑色矢量图无法辨识的困扰。
-  - 网页图片右键快捷菜单：“在当前标签页打开图片”（默认关闭，可在设置中开启）。
-  - 完善的键盘无障碍支持与屏幕阅读器实时状态播报。
-- 🛠️ **全方位个性化定制**：所有快捷键均支持图形化录制与清除，滚轮方向与行为皆可灵活反转。
+**PicoView** is a modern, lightweight, and dependency-free browser extension built on the Manifest V3 standard. It turns plain image tabs into a fluid, feature-rich viewing studio. Whether you are browsing photographs, inspecting transparent SVGs, or analyzing pixel art, PicoView delivers a seamless and delightful experience.
 
 ---
 
-## ⌨️ 操作与快捷键指南
+## ✨ Features
 
-所有快捷键均可在扩展设置页面自由更改或禁用。以下为默认键位：
+- 🚀 **Blazing Fast & Lightweight**: Crafted in pure vanilla JavaScript and CSS with zero external libraries or bundle bloat.
+- 🔍 **Smooth Stepless Zoom**: Continuous zoom from 2% to 4000% anchored around your cursor.
+- 🖐️ **Fluid Panning**: Drag images freely across the viewport with optional boundaries to prevent losing sight of the image.
+- 🔄 **Rotation & Flip**: 90° clockwise/counter-clockwise rotation, plus instant horizontal (<kbd>H</kbd>) and vertical (<kbd>V</kbd>) flipping.
+- 🏁 **Checkerboard Background**: One-key toggle for a high-contrast transparency grid behind transparent PNGs, WebP, and SVGs.
+- 👾 **Pixelated Mode**: Crisp nearest-neighbor rendering without blur or bilinear interpolation—ideal for pixel art, sprites, and icons.
+- 🎨 **Immersive Backdrops**:
+  - Solid background colors with independent palettes for standard bitmaps and transparent vector SVGs.
+  - Dynamic blurred backdrop generated from the current image.
+- 🌐 **Built-in Internationalization (i18n)**:
+  - Full English and Simplified Chinese support with automatic system language detection and manual language override.
+- ⚡ **Thoughtful Interactions**:
+  - Dedicated SVG background color ensures dark vector paths remain clearly visible.
+  - Context menu item, "Open image in current tab", off by default and available in settings.
+  - Accessible design with live screen reader announcements and keyboard navigation.
+- 🛠️ **Customizable Controls**: Interactive shortcut recorder to rebind or disable any key, plus independent inversion toggles for wheel zoom, pan, and rotation.
 
-| 快捷键 / 鼠标操作 | 功能说明 |
+---
+
+## ⌨️ Controls & Default Shortcuts
+
+All keyboard shortcuts can be rebound or cleared in the Settings page:
+
+| Shortcut / Action | Function |
 | :--- | :--- |
-| **滚轮滚动** | 以鼠标位置为中心平滑缩放（默认模式） |
-| **Ctrl + 滚轮** | 垂直滚动平移视图 |
-| **Shift + 滚轮** | 水平滚动平移视图 |
-| **Alt + 滚轮** | 精细旋转角度 |
-| **鼠标左键拖拽** | 自由平移图片 |
-| <kbd>Esc</kbd> | 退出 PicoView，恢复浏览器原生渲染 |
-| <kbd>T</kbd> | 切换透明棋盘格背景 (Checkerboard) |
-| <kbd>P</kbd> | 切换像素化渲染模式 (禁用抗锯齿平滑) |
-| <kbd>Q</kbd> | 逆时针旋转 90° |
-| <kbd>E</kbd> | 顺时针旋转 90° |
-| <kbd>H</kbd> | 水平镜像翻转 (Flip Horizontal) |
-| <kbd>V</kbd> | 垂直镜像翻转 (Flip Vertical) |
-| <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> | 上下左右平移视图（按住 <kbd>Shift</kbd> 加速平移） |
+| **Mouse Wheel** | Smooth zoom centered on cursor (default mode) |
+| **Ctrl + Wheel** | Vertical pan |
+| **Shift + Wheel** | Horizontal pan |
+| **Alt + Wheel** | Precise rotation |
+| **Left Click + Drag** | Pan image freely |
+| <kbd>Esc</kbd> | Exit PicoView and restore native browser rendering |
+| <kbd>T</kbd> | Toggle transparent checkerboard background |
+| <kbd>P</kbd> | Toggle pixelated rendering (disable smoothing) |
+| <kbd>Q</kbd> | Rotate 90° counter-clockwise |
+| <kbd>E</kbd> | Rotate 90° clockwise |
+| <kbd>H</kbd> | Flip horizontally |
+| <kbd>V</kbd> | Flip vertically |
+| <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> | Pan viewport (hold <kbd>Shift</kbd> for faster panning) |
 
 ---
 
-## 🚀 安装与使用
+## 🚀 Installation & Usage
 
-1. **下载压缩包**：打开 [Releases](https://github.com/huanfe1/PicoView/releases)，下载最新的 `PicoView-v*.zip`。
-2. **解压**：解压后得到 `PicoView` 文件夹。请保留整个文件夹，不要只抽出里面的单个文件。
-3. **打开扩展页面**：在 Chrome 地址栏输入：
+1. **Download the archive**: Open [Releases](https://github.com/huanfe1/PicoView/releases) and download the latest `PicoView-v*.zip`.
+2. **Unzip**: Unzipping it gives you a `PicoView` folder. Keep the folder intact instead of pulling out individual files.
+3. **Open the extensions page**: In Chrome, go to:
    ```text
    chrome://extensions
    ```
-   Edge 为 `edge://extensions`。Brave、Arc、Vivaldi 等 Chromium 浏览器同样使用扩展管理页。
-4. **开启开发者模式**：在扩展页面右上角打开 **开发者模式**。
-5. **加载扩展**：点击 **加载已解压的扩展程序**，选择刚才解压出来的 `PicoView` 文件夹。
-6. **开始使用**：打开独立图片链接即可进入 PicoView。网页图片右键菜单项默认关闭，需要时在设置里打开。
+   Edge uses `edge://extensions`. Brave, Arc, Vivaldi, and other Chromium browsers use their own extensions page.
+4. **Turn on Developer mode**: Enable **Developer mode** in the top-right corner.
+5. **Load the extension**: Click **Load unpacked** and select the unzipped `PicoView` folder.
+6. **Start viewing**: Open a standalone image URL to enter PicoView. The webpage image context menu is off by default and can be enabled in settings.
 
 ---
 
-## ⚙️ 个性化设置
+## ⚙️ Options & Customization
 
-点击浏览器工具栏上的 PicoView 图标，或右键图标选择“选项”，即可进入设置页面：
+Click the PicoView icon in the browser toolbar or right-click it and choose "Options" to open the settings:
 
-- **外观与视图**：
-  - **界面语言**：跟随系统 (Auto) / English / 简体中文。
-  - **背景样式**：纯色背景 / 当前图片模糊虚化。
-  - **常规图片背景色**：自定义位图背后的背景色彩。
-  - **SVG 矢量图背景色**：独立设置矢量图背景（如纯白或特定对比色）。
-  - **初始缩放模式**：超出窗口时自适应（推荐） / 始终自适应窗口 / 原始尺寸 (100%)。
-  - **初始对齐位置**：居中对齐、左上角、顶部居中等 9 种对齐锚点。
-  - **平滑动画过渡**：切换缩放与旋转时启用丝滑过场动画。
-- **操作与交互**：
-  - **滚轮默认行为**：缩放图片（默认）或页面原生滚动。
-  - **方向反转**：滚轮缩放、水平平移、垂直平移、旋转方向分别支持独立反转。
-  - **网页图片右键菜单项**：默认关闭。打开后，可在网页图片上右键选择“在当前标签页打开图片”。
-- **快捷键绑定**：
-  - 点击按钮即可开始监听并录制新按键，右键点击对应项可清空快捷键。
+- **Appearance & View**:
+  - **Interface Language**: Follow System (Auto) / English / 简体中文.
+  - **Background Style**: Solid color or blurred backdrop from the image.
+  - **Bitmap Background Color**: Custom background color behind JPG, PNG, and WebP images.
+  - **SVG Background Color**: Independent color dedicated to vector SVGs.
+  - **Initial Zoom**: Fit if larger (Recommended) / Always fit window / Actual size (100%).
+  - **Initial Alignment**: 9 alignment anchor presets (Center, Top-Left, etc.).
+  - **Smooth Transitions**: Enable or disable fluid CSS transitions.
+- **Controls & Gestures**:
+  - **Wheel Default Mode**: Zoom image (Recommended) or native page scroll.
+  - **Inversion Options**: Individually invert directions for zoom, vertical pan, horizontal pan, and rotation.
+  - **Context Menu Item**: Off by default. When enabled, right-click a webpage image and choose "Open image in current tab".
+- **Keyboard Shortcuts**:
+  - Click any key button to record a new key binding.
+  - Right-click an assigned key to clear its shortcut.
 
 ---
 
-## 📁 目录结构
+## 📁 Directory Structure
 
 ```text
 PicoView/
-├── src/                           # 扩展源码，Release 压缩包由这里打包
-│   ├── _locales/                  # Chrome 扩展标准国际化多语言包
-│   │   ├── en/messages.json       # 英文语言包
-│   │   └── zh_CN/messages.json    # 简体中文语言包
-│   ├── manifest.json              # 扩展清单配置 (Manifest V3)
-│   ├── background.js              # 后台 Service Worker (右键菜单、特殊协议转发)
-│   ├── content.js                 # 独立图片标签页注入与自启动接管
-│   ├── i18n.js                    # 轻量化双语管理模块与多语言字典
-│   ├── viewer-core.js             # PicoView 核心视图引擎 (平移/缩放/手势/变换)
-│   ├── viewer-css.js              # 查看器核心注入样式与动效
-│   ├── viewer-page.js             # 独立 viewer.html 运行入口脚本
-│   ├── viewer.html                # 独立查看器沙箱页面 (支持 base64/blob/SVG)
-│   ├── settings.js                # 统一配置加载、校验与持久化存储模块
-│   ├── options.html               # 设置页面结构
-│   ├── options.js                 # 设置页面交互与按键录制
-│   ├── options.css                # 设置页面现代 UI 样式
-│   └── icons/                     # 各种分辨率的扩展图标 (16~128px)
-├── assets/                        # 项目设计资源与文档素材（不进入扩展包）
-│   ├── logo.png                   # PicoView 高清原始应用图标 (512x512)
-│   └── banner.png                 # README 官方介绍与展示大图
-├── README.md                      # 项目说明文档 (简体中文)
-└── README_EN.md                   # 项目说明文档 (English)
+├── src/                           # Extension source; release archives are packed from here
+│   ├── _locales/                  # Chrome Extension i18n locales
+│   │   ├── en/messages.json       # English messages
+│   │   └── zh_CN/messages.json    # Simplified Chinese messages
+│   ├── manifest.json              # Manifest V3 extension configuration
+│   ├── background.js              # Background service worker (context menu & routing)
+│   ├── content.js                 # Content script for standalone image tabs
+│   ├── i18n.js                    # Lightweight unified i18n manager & dictionaries
+│   ├── viewer-core.js             # PicoView view engine (pan/zoom/gestures/transforms)
+│   ├── viewer-css.js              # Core injected styles and animations
+│   ├── viewer-page.js             # Standalone viewer sandbox runner
+│   ├── viewer.html                # Isolated viewer sandbox page
+│   ├── settings.js                # Centralized settings loading & schema normalization
+│   ├── options.html               # Options page layout
+│   ├── options.js                 # Options page logic & key recording
+│   ├── options.css                # Options page modern UI styling
+│   └── icons/                     # Extension icons (16px to 128px)
+├── assets/                        # Design assets and documentation media (not shipped)
+│   ├── logo.png                   # PicoView high-resolution app icon (512x512)
+│   └── banner.png                 # README official display banner
+├── README.md                      # Documentation (English)
+└── README_CN.md                   # Documentation (简体中文)
 ```
 
 ---
 
-## 📄 开源许可
+## 📄 License
 
-本项目遵循 MIT License 开源协议。
+This project is licensed under the [MIT License](./LICENSE).
