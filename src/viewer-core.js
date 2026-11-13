@@ -14,7 +14,8 @@ const PicoViewer = (() => {
   class ImageViewer {
     constructor(container, options) {
       this.root = container;
-      this.src = options.src;
+      this.adopted = options.image instanceof HTMLImageElement ? options.image : null;
+      this.src = options.src || this.adopted?.currentSrc || this.adopted?.src || "";
       this.isSvg = Boolean(options.isSvg);
       this.onClose = typeof options.onClose === "function" ? options.onClose : null;
       this.settings = PicoSettings.normalize(options.settings);
@@ -30,6 +31,7 @@ const PicoViewer = (() => {
       this.viewH = 1;
       this.ready = false;
       this.placed = false;
+      this.svgSizing = false;
       this.destroyed = false;
       this.sizeFrame = 0;
       this.pixelated = false;
@@ -53,11 +55,18 @@ const PicoViewer = (() => {
       this.blur.alt = "";
       this.blur.setAttribute("fetchpriority", "low");
 
-      this.photo = document.createElement("img");
+      if (this.adopted) {
+        this.photo = this.adopted;
+        this.photo.removeAttribute("width");
+        this.photo.removeAttribute("height");
+        this.photo.style.cssText = "";
+      } else {
+        this.photo = document.createElement("img");
+        this.photo.setAttribute("fetchpriority", "high");
+      }
       this.photo.className = "photo";
-      this.photo.alt = imageName(this.src, lang);
+      this.photo.alt = this.photo.alt || imageName(this.src, lang);
       this.photo.draggable = true;
-      this.photo.setAttribute("fetchpriority", "high");
 
       this.frame = document.createElement("div");
       this.frame.className = "frame";
@@ -88,7 +97,7 @@ const PicoViewer = (() => {
       this.photo.addEventListener("dragstart", (event) => {
         if (!event.altKey) event.preventDefault();
       });
-      this.photo.addEventListener("load", () => this.onLoad());
+      this.photo.addEventListener("load", () => this.revealWhenSized());
       this.photo.addEventListener("error", () => {
         this.stopSizeWatch();
         this.message.hidden = false;
@@ -134,21 +143,62 @@ const PicoViewer = (() => {
     }
 
     start() {
-      this.blur.src = this.src;
-      this.photo.src = this.src;
+      if (!this.adopted && this.src) this.photo.src = this.src;
+      this.attachBlur();
       this.revealWhenSized();
     }
 
+    attachBlur() {
+      if (this.settings.backgroundMode !== "blur") return;
+      const src = this.photo.currentSrc || this.photo.src || this.src;
+      if (!src || this.blur.getAttribute("src") === src) return;
+      this.blur.src = src;
+    }
+
     revealWhenSized() {
-      if (this.destroyed || this.placed) return;
+      if (this.destroyed || this.placed || this.svgSizing) return;
       const w = this.photo.naturalWidth;
       const h = this.photo.naturalHeight;
       if (w > 0 && h > 0) {
+        this.useSize(w, h);
+        return;
+      }
+      if (this.photo.complete) {
+        this.stopSizeWatch();
+        this.message.hidden = false;
+        this.message.textContent = PicoI18n.t("imageLoadError", null, this.settings.language);
+        return;
+      }
+      this.sizeFrame = window.requestAnimationFrame(() => this.revealWhenSized());
+    }
+
+    useSize(w, h) {
+      if (!this.isSvg) {
         this.placeImage(w, h);
         return;
       }
-      if (this.photo.complete) return;
-      this.sizeFrame = window.requestAnimationFrame(() => this.revealWhenSized());
+      this.svgSizing = true;
+      this.stopSizeWatch();
+      void this.readSvgSize(w, h).then((size) => {
+        this.svgSizing = false;
+        if (this.destroyed || this.placed) return;
+        if (size.width !== w || size.height !== h) {
+          this.photo.style.width = `${size.width}px`;
+          this.photo.style.height = `${size.height}px`;
+        }
+        this.placeImage(size.width, size.height);
+      });
+    }
+
+    async readSvgSize(w, h) {
+      const fallback = { width: w, height: h };
+      try {
+        const markup = await svgMarkup(this.photo.currentSrc || this.src);
+        return svgIntrinsicSize(markup, fallback);
+      } catch (error) {
+        console.error("读取 SVG 尺寸失败", error);
+        return fallback;
+      }
     }
 
     stopSizeWatch() {
@@ -157,20 +207,20 @@ const PicoViewer = (() => {
       this.sizeFrame = 0;
     }
 
-    onLoad() {
-      this.placeImage(this.photo.naturalWidth || this.photo.width || 1, this.photo.naturalHeight || this.photo.height || 1);
-    }
-
     placeImage(w, h) {
       if (this.destroyed || this.placed) return;
+      if (this.stage.clientWidth === 0 || this.stage.clientHeight === 0) {
+        this.stopSizeWatch();
+        this.sizeFrame = window.requestAnimationFrame(() => {
+          this.sizeFrame = 0;
+          this.placeImage(w, h);
+        });
+        return;
+      }
       this.placed = true;
       this.stopSizeWatch();
       this.natW = w;
       this.natH = h;
-      this.photo.width = w;
-      this.photo.height = h;
-      this.blur.width = w;
-      this.blur.height = h;
       this.ready = true;
       this.message.hidden = true;
       this.measure();
@@ -347,6 +397,7 @@ const PicoViewer = (() => {
       this.stage.classList.toggle("is-checker", this.checker);
       this.root.classList.toggle("is-blur", this.settings.backgroundMode === "blur");
       this.photo.classList.toggle("is-pixelated", this.pixelated);
+      this.attachBlur();
     }
 
     onAction(action) {
@@ -539,6 +590,50 @@ const PicoViewer = (() => {
         this.live.textContent = text;
       });
     }
+  }
+
+  async function svgMarkup(url) {
+    if (!url) return "";
+    if (url.startsWith("data:")) {
+      const comma = url.indexOf(",");
+      if (comma < 0) return "";
+      const head = url.slice(0, comma);
+      const body = url.slice(comma + 1);
+      return /;base64/i.test(head) ? atob(body) : decodeURIComponent(body);
+    }
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(String(response.status));
+    return response.text();
+  }
+
+  function svgIntrinsicSize(markup, fallback) {
+    if (!markup) return fallback;
+    const svg = new DOMParser().parseFromString(markup, "image/svg+xml").documentElement;
+    if (!svg || svg.localName !== "svg") return fallback;
+    const width = lengthPx(svg.getAttribute("width"));
+    const height = lengthPx(svg.getAttribute("height"));
+    const box = viewBoxSize(svg.getAttribute("viewBox"));
+    if (width && height) return { width, height };
+    if (width && box) return { width, height: width * box.height / box.width };
+    if (height && box) return { width: height * box.width / box.height, height };
+    if (box) return box;
+    return fallback;
+  }
+
+  function lengthPx(value) {
+    if (!value) return 0;
+    const text = value.trim();
+    if (!text || text.includes("%") || !/^[\d.]+(px)?$/i.test(text)) return 0;
+    const n = parseFloat(text);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  }
+
+  function viewBoxSize(value) {
+    if (!value) return null;
+    const parts = value.trim().split(/[\s,]+/).map(Number);
+    if (parts.length !== 4 || parts.some((part) => !Number.isFinite(part))) return null;
+    if (parts[2] <= 0 || parts[3] <= 0) return null;
+    return { width: parts[2], height: parts[3] };
   }
 
   function imageName(url, lang) {

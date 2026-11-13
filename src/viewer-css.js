@@ -76,7 +76,10 @@ html.picoview-page body {
 
 .photo {
   display: block;
+  width: auto;
+  height: auto;
   max-width: none;
+  max-height: none;
   visibility: hidden;
 }
 
