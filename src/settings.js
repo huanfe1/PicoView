@@ -10,7 +10,7 @@ globalThis.PicoSettings = (() => {
     smooth: true,
     keepInside: false,
     closeOnBackgroundClick: false,
-    openInCurrentTab: true,
+    openInCurrentTab: false,
     invertZoom: false,
     invertVertical: false,
     invertHorizontal: false,

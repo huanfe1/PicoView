@@ -44,7 +44,7 @@ When opening standalone image tabs in Chromium browsers, the native viewer exper
   - Full English and Simplified Chinese support with automatic system language detection and manual language override.
 - ⚡ **Thoughtful Interactions**:
   - Dedicated SVG background color ensures dark vector paths remain clearly visible.
-  - Context menu integration: "Open image in current tab".
+  - Context menu item, "Open image in current tab", off by default and available in settings.
   - Accessible design with live screen reader announcements and keyboard navigation.
 - 🛠️ **Customizable Controls**: Interactive shortcut recorder to rebind or disable any key, plus independent inversion toggles for wheel zoom, pan, and rotation.
 
@@ -83,7 +83,7 @@ All keyboard shortcuts can be rebound or cleared in the Settings page:
    Edge uses `edge://extensions`. Brave, Arc, Vivaldi, and other Chromium browsers use their own extensions page.
 4. **Turn on Developer mode**: Enable **Developer mode** in the top-right corner.
 5. **Load the extension**: Click **Load unpacked** and select the unzipped `PicoView` folder.
-6. **Start viewing**: Open a standalone image URL, or right-click an image on a webpage and choose **"Open image in current tab"**.
+6. **Start viewing**: Open a standalone image URL to enter PicoView. The webpage image context menu is off by default and can be enabled in settings.
 
 ---
 
@@ -102,7 +102,7 @@ Click the PicoView icon in the browser toolbar or right-click it and choose "Opt
 - **Controls & Gestures**:
   - **Wheel Default Mode**: Zoom image (Recommended) or native page scroll.
   - **Inversion Options**: Individually invert directions for zoom, vertical pan, horizontal pan, and rotation.
-  - **Context Menu Item**: Toggle right-click menu entry.
+  - **Context Menu Item**: Off by default. When enabled, right-click a webpage image and choose "Open image in current tab".
 - **Keyboard Shortcuts**:
   - Click any key button to record a new key binding.
   - Right-click an assigned key to clear its shortcut.
